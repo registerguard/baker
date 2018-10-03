@@ -2,6 +2,7 @@
 
 import argparse
 import boto3
+import datetime
 import os
 import requests
 
@@ -32,6 +33,9 @@ def main():
     f.write(r)
     f.close()
 
+    # Set Expires header to 1 hour from now. Cloudfront default is 24 hours.
+    expires = datetime.datetime.now() + datetime.timedelta(hours=1)
+
     s3 = boto3.resource('s3')
     s3.meta.client.upload_file(
         temp_file,
@@ -39,7 +43,8 @@ def main():
         # 'ducksports/football/roster.html',
         aws_path,
         ExtraArgs = {
-            'ContentType': "text/html", 'ACL': "public-read"
+            'ContentType': "text/html", 'ACL': "public-read",
+            'Expires': expires,
         }
     )
 
